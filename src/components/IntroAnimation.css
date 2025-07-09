@@ -1,0 +1,5 @@
+.intro-bg {
+  background-image: url('/ashtavkragita.jpg.png'); /* 👈 yahan apna image path de */
+  background-size: cover;
+  background-position: center;
+}

@@ -1,0 +1,33 @@
+{
+  "name": "Ashtavakra Gita",
+  "short_name": "AshtGita",
+  "id": "/",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#222222",
+  "orientation": "portrait",
+  "description": "यह अष्टावक्र गीता पर आधारित एक आध्यात्मिक ऐप है जो श्लोकों का हिंदी अनुवाद और ऑडियो प्रदान करता है।",
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot1.png",
+      "type": "image/png",
+      "sizes": "540x960"
+    }
+  ]
+}
