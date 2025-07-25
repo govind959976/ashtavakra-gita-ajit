@@ -1,74 +1,115 @@
-import React, { useState } from "react";
-import ShlokaSlider from "./ShlokaSlider";
+// src/components/ChapterList.jsx
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import MenuDrawer from "./MenuDrawer";
+import Settings from "./Settings";
+import AajKaShlok from "./AajKaShlok";
+import PragatiReport from "./PragatiReport";
+import PrivacyPolicy from "./PrivacyPolicy";
+import AboutApp from "./AboutApp";
 import BookmarkList from "./BookmarkList";
-import data from "../assets/ashtavakra_chapter1.json"; // ← पूरा chapters वाला JSON
+import data from "../assets/ashtavakra_chapter1.json";
+import { useLanguage } from "../context/LanguageContext";
+import translations from "../translations";
 
 const ChapterList = () => {
-  const [selected, setSelected] = useState(null);
+  const navigate = useNavigate();
+
+  const { language } = useLanguage();
+  const t = translations[language] || translations["English"];
+
+  const [menuOption, setMenuOption] = useState(null);
   const [dailyMode, setDailyMode] = useState(false);
-  const [bookmarkView, setBookmarkView] = useState(false);
+  const [fontSize, setFontSize] = useState(localStorage.getItem("fontSize") || "medium");
+  const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "true");
+  const [menuOpen, setMenuOpen] = useState(false);
+
+ useEffect(() => {
+          const body = document.body;
+          if(darkMode) {
+            body.classList.add("dark-mode");
+            body.classList.remove("light-move");
+          } else {
+            body.classList.add("light-mode");
+            body.classList.remove("dark-move");
+          }
+        }, [darkMode]); 
+
+  useEffect(() => {
+    document.documentElement.style.fontSize =
+      fontSize === "small"
+        ? "14px"
+        : fontSize === "large"
+        ? "20px"
+        : fontSize === "x-large"
+        ? "24px"
+        : "16px";
+  }, [fontSize]);
+
+  const handleChange = (key, value) => {
+    if (key === "darkMode") setDarkMode(value);
+    if (key === "language") localStorage.setItem("language", value);
+    if (key === "fontSize") setFontSize(value);
+  };
+
+  const handleReset = () => {
+    setDarkMode(false);
+    setFontSize("medium");
+  };
 
   const handleBack = () => {
-    setSelected(null);
+    setMenuOption(null);
     setDailyMode(false);
-    setBookmarkView(false);
+  };
+
+  const handleMenuSelect = (option) => {
+    setMenuOption(option);
+    setDailyMode(false);
+    setMenuOpen(false);
   };
 
   return (
-    <div
-      className="h-screen overflow-y-scroll px-4 py-6"
-      style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-    >
-      <style>{`div::-webkit-scrollbar { display: none; }`}</style>
+    <div className="p-4 h-screen overflow-y-auto relative">
+      <button
+        onClick={() => setMenuOpen(!menuOpen)}
+        className="absolute right-4 top-4 z-20 text-2xl"
+      >
+        ...
+      </button>
 
-      {bookmarkView ? (
-        <BookmarkList onBack={handleBack} />
-      ) : selected === null && !dailyMode ? (
-        <>
-        <div className="relative mb-4">
-          {/* ⭐ Bookmarks Button */}
-          <button
-            className=" absolute right-0 top-0 mb-4 px-3 py-1 text-left text-lg rounded-md hover:scale-105 transition-transform"
-            onClick={() => setBookmarkView(true)}
-          >
-            ⭐
-          </button>
-             <h1 className="text-center text-2xl font-bold text-blue-800 mb-4">🕉️ Chapters</h1>
-</div>
+      {menuOpen && <MenuDrawer onSelect={handleMenuSelect} />}
 
-          {/* 📅 Daily Wisdom Button */}
-          <button
-            className="mb-3 w-full px-4 py-3 bg-gradient-to-r from-green-200 to-green-300 text-left text-lg rounded-xl shadow hover:scale-[1.01] transition-transform duration-200"
-            onClick={() => setDailyMode(true)}
-          >
-            📅 Daily Wisdom – 1 Shloka a Day
-          </button>
+      {menuOption === "about" && <AboutApp onBack={handleBack} fontSize={fontSize} />}
+      {menuOption === "privacy" && <PrivacyPolicy onBack={handleBack} fontSize={fontSize} />}
+      {menuOption === "PragatiReport" && <PragatiReport onBack={handleBack} fontSize={fontSize} />}
+      {menuOption === "settings" && (
+        <Settings
+          onBack={handleBack}
+          onChange={handleChange}
+          onReset={handleReset}
+          darkMode={darkMode}
+          fontSize={fontSize}
+        />
+      )}
+      {menuOption === "bookmark" && <BookmarkList onBack={handleBack} fontSize={fontSize} />}
+      {dailyMode && <AajKaShlok onBack={handleBack} fontSize={fontSize} />}
 
+      {!menuOption && !dailyMode && (
+        <div className="flex flex-col gap-2 ">
+          <h2 className="text-xl font-bold text-center mb-4">{t.selectChapter}</h2>
+
+        
           
-
-          {/* 📚 Chapter List */}
-          {data.gita.map((ch, idx) => (
-            <div key={idx} className="mb-3">
-              <button
-                className="w-full text-left px-4 py-3 bg-gradient-to-r from-yellow-100 to-yellow-200 rounded-xl shadow hover:scale-[1.01] transition-transform duration-200"
-                onClick={() => setSelected(idx)}
-              >
-                <div className="text-lg font-semibold text-gray-800">{ch.title}</div>
-              </button>
-            </div>
+          {data.gita.map((chapter, index) => (
+            <button
+              key={index}
+              className="bg-white text-left px-4 py-2 rounded-lg shadow cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-lg hover:bg-gradient-to-r hover:from-orange-400 hover:to-yellow-300 dark:hover:bg-gray-700"
+              onClick={() => navigate(`/chapter/${index}`)}
+            >
+              {t.chapter} {index + 1} - {chapter.name}
+            </button>
           ))}
-        </>
-      ) : (
-        <>
-          <button
-            onClick={handleBack}
-            className="mb-4 px-4 py-2 bg-red-500 text-white rounded shadow"
-          >
-            🔙 Back
-          </button>
-
-          <ShlokaSlider chapterIndex={selected || 0} dailyWisdomMode={dailyMode} />
-        </>
+        </div>
       )}
     </div>
   );

@@ -1,15 +1,31 @@
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import data from "../assets/ashtavakra_chapter1.json";
+import { useLanguage } from "../context/LanguageContext";
+import ShareShlokaButton from "../components/ShareShlokaButton";
 import commentaryMap from "../assets/commentaryMap";
+import translations from "../translations";
+import { useNavigate } from "react-router-dom";
 
-const ShlokaSlider = ({ chapterIndex, dailyWisdomMode = false }) => {
+const ShlokaSlider = ({ onBack }) => {
+    const navigate = useNavigate();
+    const goBackToChapterList =() => {
+      navigate("/");
+    };
+  const { language } = useLanguage();
+  const t = translations[language] || translations["English"];
+  const [commentaryVisible, setCommentaryVisible ] = useState(false);
+
+  const { id } = useParams();
+  const chapterIndex = parseInt(id, 10);
   const chapter = data.gita[chapterIndex];
   const [bookmarked, setBookmarked] = useState([]);
   const [notes, setNotes] = useState({});
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [expandedShloka, setExpandedShloka] = useState(null);
+  const [isListening, setIsListening] = useState(false);
+  const [fontSize, setFontSize] = useState(localStorage.getItem("fontSize") || "medium");
 
   useEffect(() => {
     const storedBookmarks = JSON.parse(localStorage.getItem("bookmarked") || "[]");
@@ -18,10 +34,46 @@ const ShlokaSlider = ({ chapterIndex, dailyWisdomMode = false }) => {
     setNotes(storedNotes);
   }, [chapterIndex]);
 
-  const getTodayShlokaIndex = () => {
-    const total = chapter.verses.length;
-    const today = new Date();
-    return (today.getDate() + today.getMonth() * 31) % total;
+  const startListening = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return alert("Speech not supported");
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "hi-IN";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    setIsListening(true);
+
+    recognition.onresult = (event) => {
+      const text = event.results[0][0].transcript.toLowerCase();
+      handleVoiceCommand(text);
+      setIsListening(false);
+    };
+
+    recognition.onerror = () => {
+      alert("🎙️ Mic error. Try again.");
+      setIsListening(false);
+    };
+
+    recognition.start();
+  };
+
+
+  const handleVoiceCommand = (spoken) => {
+    const num = parseInt(spoken.replace(/[^0-9]/g, ""));
+    if (spoken.includes("bookmark")) {
+      if (!isNaN(num)) toggleBookmark(num - 1);
+    } else if (spoken.includes("read") || spoken.includes("shlok")) {
+      if (!isNaN(num) && num > 0 && num <= chapter.verses.length) {
+        setCurrentSlide(num - 1);
+        speak(chapter.verses[num - 1].hindi);
+      } else {
+        alert("❌ कृपया सही श्लोक संख्या बोलें");
+      }
+    } else {
+      alert("❌ समझ नहीं आया");
+    }
   };
 
   const toggleBookmark = (index) => {
@@ -47,153 +99,113 @@ const ShlokaSlider = ({ chapterIndex, dailyWisdomMode = false }) => {
     speechSynthesis.speak(utterance);
   };
 
-  const shareOrCopy = (v) => {
-    const text = `🕉️ अष्टावक्र गीता\n\n📜 ${v.sanskrit}\n\n📝 ${v.hindi}\n\n💬 ${v.english}\n\n🔗 Explore: https://yourapp.com`;
 
-    const encodedText = encodeURIComponent(text);
-    const whatsappURL = `https://wa.me/?text=${encodedText}`;
-    const emailURL = `mailto:?subject=Ashtavakra Gita Shloka&body=${encodedText}`;
+  const saveProgress = (chapterNum, shlokaNum) => {
+    const today = new Date().toISOString().split("T")[0];
+    const progress = JSON.parse(localStorage.getItem("progress")) || {};
+     if  (!progress[today])progress[today] = {};
+     if (!progress[today][chapterNum]) progress[today][chapterNum] =[];
 
-    if (navigator.share) {
-      navigator.share({ title: "Ashtavakra Gita", text });
-    } else {
-      window.open(whatsappURL, "_blank");
-      navigator.clipboard.writeText(text);
-      window.open(emailURL, "_blank");
-      alert("✅ Shared via WhatsApp & Email and copied to clipboard!");
-    }
+     if (!progress[today][chapterNum].includes(shlokaNum)) {
+      progress[today][chapterNum].push(shlokaNum);
+
+      localStorage.setItem("progress", JSON.stringify(progress));
+     }
   };
 
   const renderSlide = (v, i) => {
     const id = `${chapterIndex}-${i}`;
+
+     saveProgress(chapterIndex, i);
+
     return (
       <SwiperSlide key={i}>
         <div
-          style={{
+          style={ {
             backgroundColor: "#fff8dc",
-            color: "#000",
             padding: "16px",
             borderRadius: "10px",
-            textAlign: "center",
             margin: "8px",
-            fontFamily: "serif"
+            fontSize:
+              fontSize === "small"
+                ? "14px"
+                : fontSize === "large"
+                ? "20px"
+                : fontSize === "x-large"
+                ? "24px"
+                : "16px",
           }}
         >
-          <p style={{ fontWeight: "bold", fontSize: "18px", marginBottom: "25px" }}>{v.sanskrit.split("\n").map((line, idx) => (
+          <p style={{ fontWeight: "bold", textAlign: "center", marginBottom: "25px" }}>{v.sanskrit.split("\n").map((line, idx) => (
             <span key={idx}>{line}<br /></span>
           ))}</p>
-          <p style={{ fontStyle: "italic", fontSize: "16px", margin: "12px 0", marginBottom: "20px" }}>{v.hindi.split("\n").map((line, idx) => (
-            <span key={idx}>{line}<br /></span>
-          ))}</p>
-          <p style={{ fontWeight: "600", fontSize: "14px", color: "#444" }}>{v.english}</p>
 
-          <div
-            style={{
-              marginTop: "12px",
-              display: "flex",
-              gap: "12px",
-              justifyContent: "center",
-              flexWrap: "wrap"
-            }}
-          >
-            <button
-              onClick={() => speak(v.hindi)}
-              style={{
-                backgroundColor: "#3b82f6",
-                color: "#fff",
-                borderRadius: "6px",
-                padding: "6px 12px"
-              }}
-            >
-              🔊 Listen
+          <p style={{ fontStyle: "italic", textAlign: "center", marginBottom: "20px" }}>{v.hindi.split("\n").map((line, idx) => (
+            <span key={idx}>{line}<br /></span>
+          ))}</p>
+
+          <p style={{ color: "#444", textAlign: "center", marginBottom: "20px" }}>{v.english}</p>
+
+          <div style={{ marginTop: "12px", display: "flex", gap: "10px", justifyContent: "center" }}>
+            <button onClick={() => speak(v.hindi)}>🔊 Listen</button>
+            <button onClick={startListening} disabled={isListening}>
+              🎤 {isListening ? "Listening..." : "Mic"}
             </button>
-
-            <button
-              onClick={() => toggleBookmark(i)}
-              style={{
-                backgroundColor: "#facc15",
-                borderRadius: "6px",
-                padding: "6px 12px"
-              }}
-            >
+            <button onClick={() => toggleBookmark(i)}>
               {bookmarked.includes(id) ? "★ Bookmarked" : "☆ Bookmark"}
             </button>
 
-            <button
-              onClick={() => shareOrCopy(v)}
-              style={{
-                backgroundColor: "#10b981",
-                color: "#fff",
-                borderRadius: "6px",
-                padding: "6px 12px"
-              }}
-            >
-              📤 Share
-            </button>
           </div>
 
-          <button
-            onClick={() => setExpandedShloka(expandedShloka === i ? null : i)}
-            style={{
-              marginTop: "10px",
-              backgroundColor: "#e2e8f0",
-              padding: "6px 12px",
-              borderRadius: "6px"
-            }}
-          >
-            {expandedShloka === i ? "🔼 Hide Commentary" : "🔽 Show Commentary"}
-          </button>
-
-          {expandedShloka === i && (
-            <div
-              style={{
-                backgroundColor: "#fefcbf",
-                padding: "10px",
-                borderRadius: "6px",
-                marginTop: "10px",
-                textAlign: "left"
-              }}
-            >
-              <p>
-                <strong>📝 हिंदी:</strong>{" "}
-                {commentaryMap[`${chapterIndex}-${i}`]?.hindi || "कोई टिप्पणी नहीं।"}
-              </p>
-              <p>
-                <strong>💬 English:</strong>{" "}
-                {commentaryMap[`${chapterIndex}-${i}`]?.english || "No commentary yet."}
-              </p>
-            </div>
-          )}
-
           <textarea
+            placeholder="📝 Your note..."
             value={notes[id] || ""}
             onChange={(e) => saveNote(i, e.target.value)}
-            placeholder="📝 Write your notes here..."
-            style={{
-              marginTop: "16px",
-              width: "100%",
-              padding: "8px",
-              borderRadius: "6px"
-            }}
+            style={{ marginTop: "12px", width: "100%" }}
           />
-        </div>
+          <button onClick={() =>
+            setCommentaryVisible(!commentaryVisible)
+          }>
+            {commentaryVisible ? "Hide Commentary"  : "Commentary"}
+          </button>
+
+          {commentaryVisible && commentaryMap[id] && (
+            <div style={{ marginTop: "12px", backgroundColor: "#f4f4f4", padding: "10px", borderRadius: "8px" }}>
+              <p style={{ fontWeight: "bold" }}>
+                हिंदी
+              </p>
+              <p>{commentaryMap[id].hindi}</p>
+              <p style={{ fontWeight: "bold", marginTop: "8px" }}>English</p>
+              <p>{commentaryMap[id].english}</p>
+            </div>
+          )}
+          </div>
+          <ShareShlokaButton shloka={v} />
+
       </SwiperSlide>
     );
   };
 
   return (
-    <div className="mt-4">
-      <div className="flex justify-center mb-2">
-        <h2 className="text-xl font-semibold text-center">{chapter.title}</h2>
-      </div>
-      <div className="text-center text-sm text-gray-600 mb-2">
-        📖 Shloka {dailyWisdomMode ? getTodayShlokaIndex() + 1 : currentSlide + 1} /{" "}
-        {chapter.verses.length}
-      </div>
-      <Swiper spaceBetween={30} onSlideChange={(swiper) => setCurrentSlide(swiper.activeIndex)}>
-        {dailyWisdomMode
-          ? renderSlide(chapter.verses[getTodayShlokaIndex()], getTodayShlokaIndex())
-          : chapter.verses.map((v, i) => renderSlide(v, i))}
+    <div className="mt-4 px-4 relative">
+      {/* 🔙 Back Button */}
+      <button
+        onClick={goBackToChapterList}
+        className="absolute top-2 left-2 text-white bg-white dark:bg-white text-sm px-3 py-1 rounded"
+      >
+        {t.back || "🔙"}
+      </button>
+
+      <h2 className="text-xl font-semibold text-center mb-2">{chapter.title}</h2>
+      <p className="text-center text-sm text-gray-600 mb-2">
+        {currentSlide + 1} / {chapter.verses.length}
+      </p>
+
+      <Swiper
+        onSlideChange={(swiper) => setCurrentSlide(swiper.activeIndex)}
+        initialSlide={currentSlide}
+      >
+        {chapter.verses.map((v, i) => renderSlide(v, i))}
       </Swiper>
     </div>
   );
