@@ -38,7 +38,7 @@ const MenuDrawer = ({ onSelect }) => {
       <button onClick={() => navigate("/contact")} className="block w-full text-left text-white">
         {t.contact || "✉ Contact Us"}
       </button>
-      <button onClick={() => onSelect("about")} className="block w-full text- text-white">
+      <button onClick={() => onSelect("about")} className="block w-full text-left text-white">
         {t.about || "ℹ️ About App"}
       </button>
       <button onClick={() => onSelect("privacy")} className="block w-full text-left text-white">
