@@ -59,7 +59,7 @@ const AajKaShlok = ({ fontSize = "lg" }) => {
       {/* 🔙 Back Button */}
       <button
         onClick={() => navigate(-1)}
-        className="mb-4 text-black  "
+        className="mb-4 text-black "
       >
         {t.back || "🔙BACK"}
       </button>
