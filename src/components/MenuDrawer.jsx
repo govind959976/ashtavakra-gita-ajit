@@ -13,7 +13,7 @@ const MenuDrawer = ({ onSelect }) => {
   };
 
   return (
-    <div className="absolute right-4 top-16 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-3 z-10 space-y-2 w-64 text-sm">
+    <div className="absolute right-4 top-16 bg-white dark:bg-white-800 shadow-lg rounded-lg p-3 z-10 space-y-2 w-64 text-sm">
       <button onClick={handleClick} className="block w-full text-left">
         {t.aajKaShlok || "📜 Today's Shloka"}
       </button>
