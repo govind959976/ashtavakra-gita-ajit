@@ -1,0 +1,4 @@
+user-agent: *
+Allow: /
+
+sitemap: https://ashtavakra-gita-ajit.vercel.app/sitemap.xml
