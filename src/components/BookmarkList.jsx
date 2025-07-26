@@ -22,13 +22,13 @@ const BookmarkList = ({ onBack, fontSize = "base" }) => {
 
   return (
     <div className={`p-6 max-w-3xl mx-auto text-gray-800 bg-white shadow-md rounded-xl mt-6 text-${fontSize}`}>
-      <h2 className="text-xl font-bold mb-4 text-center">
+      <h2 className="text-xl font-bold mb-4 text-center rounded hover:bg-blue-600">
         {t.bookmarkList || "⭐ Bookmarked Shlokas"}
       </h2>
 
       <button
         onClick={onBack}
-        className="mb-4 text-white px-4 py-2 rounded hover:bg-blue-600"
+        className="mb-4 text-black px-4 py-2 "
       >
        {t.back || "🔙BACK"}
       </button>

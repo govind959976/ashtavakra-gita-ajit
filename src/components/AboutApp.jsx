@@ -7,10 +7,10 @@ const AboutApp = ({ onBack, fontSize = 'base' }) => {
 
   return (
     <div className={`p-6 max-w-3xl mx-auto text-gray-800 bg-white shadow-md rounded-xl mt-6 text-${fontSize}`}>
-            <button onClick={onBack} className="text-white rounded hover:bg-blue-600 mb-4">
+            <button onClick={onBack} className="text-black mb-4">
         {t.back || "🔙BACK"}
       </button>
-      <h2 className="text-xl text-white font-bold">{t.aboutApp}</h2>
+      <h2 className="text-xl text-white rounded hover:bg-blue-600 font-bold">{t.aboutApp}</h2>
 
       {/* अब multilingual body paragraphs आप चाहें तो translate.js में भी डाल सकते हैं,
           पर यहां फिलहाल हिंदी में रखें जब तक और भाषाओं का content ना मिल जाए */}

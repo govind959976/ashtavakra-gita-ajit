@@ -61,12 +61,12 @@ const PragatiReport = ({ fontSize = "base" }) => {
     <div className={`p-4 text-${fontSize} whitespace-pre-line`}>
       <button
         onClick={() => navigate(-1)}
-        className="mb-4 px-4 py-2 text-white rounded hover:bg-blue-600"
+        className="mb-4 px-4 py-2 text-black"
       >
         {t.back || "🔙BACK"}
       </button>
 
-      <h2 className="text-xl font-bold mb-2">
+      <h2 className="text-xl font-bold mb-2 text-white rounded hover:bg-blue-600 ">
         {t.progress || (language === "Hindi" ? "📈 प्रगति रिपोर्ट" : "📈 Progress Report")}
       </h2>
 
