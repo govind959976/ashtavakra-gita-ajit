@@ -10,7 +10,7 @@ const AboutApp = ({ onBack, fontSize = 'base' }) => {
             <button onClick={onBack} className="text-white mb-4">
         {t.back || "🔙"}
       </button>
-      <h2 className="text-xl font-bold">{t.aboutApp}</h2>
+      <h2 className="text-xl text-white font-bold">{t.aboutApp}</h2>
 
       {/* अब multilingual body paragraphs आप चाहें तो translate.js में भी डाल सकते हैं,
           पर यहां फिलहाल हिंदी में रखें जब तक और भाषाओं का content ना मिल जाए */}

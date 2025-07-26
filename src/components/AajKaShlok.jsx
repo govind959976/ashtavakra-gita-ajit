@@ -64,7 +64,7 @@ const AajKaShlok = ({ fontSize = "lg" }) => {
         {t.back || "🔙"}
       </button>
 
-      <h2 className="text-2xl font-bold text-center mb-4 text-indigo-700">
+      <h2 className="text-2xl font-bold text-center mb-4 text-white">
         {t.todayShloka || "Today’s Shloka"}
       </h2>
       <p className="text-sm text-center text-gray-500 mb-2">
