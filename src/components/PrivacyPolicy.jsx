@@ -8,8 +8,8 @@ const PrivacyPolicy = ({ onBack, fontSize = "base" }) => {
 
   return (
     <div className={`p-6 max-w-3xl mx-auto text-gray-800 bg-white shadow-md rounded-xl mt-6 text-${fontSize}`}>
-            <button onClick={onBack} className="text-white mb-4">
-        {t.back || "🔙"}
+            <button onClick={onBack} className="text-white rounded hover:bg-blue-600 mb-4">
+        {t.back || "🔙BACK"}
       </button>
       <h1 className="text-2xl font-bold text-blue-800 mb-4">{t.privacy || "🔐 Privacy Policy"}</h1>
 

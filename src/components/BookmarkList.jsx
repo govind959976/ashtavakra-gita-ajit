@@ -28,9 +28,9 @@ const BookmarkList = ({ onBack, fontSize = "base" }) => {
 
       <button
         onClick={onBack}
-        className="mb-4 text-white px-4 py-2 rounded"
+        className="mb-4 text-white px-4 py-2 rounded hover:bg-blue-600"
       >
-       {t.back || "🔙"}
+       {t.back || "🔙BACK"}
       </button>
 
       {bookmarks.length === 0 ? (

@@ -65,8 +65,8 @@ const Settings = ({ onBack, onChange, onReset, darkMode, fontSize }) => {
 
   return (
     <div className={`p-4 max-w-md mx-auto text-[${fontSize}]`}>
-      <button onClick={onBack} className="text-white mb-4">
-        {t.back || "🔙"}
+      <button onClick={onBack} className="text-white rounded hover:bg-blue-600 mb-4">
+        {t.back || "🔙BACK"}
       </button>
       <h2 className="text-xl font-bold mb-4">{t.settings || "⚙️ Settings"}</h2>
       
